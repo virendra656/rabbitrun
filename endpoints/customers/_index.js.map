@@ -1,0 +1,1 @@
+{"version":3,"sources":["endpoints/customers/_index.ts"],"names":[],"mappings":";;AAAA,gDAAgD;AAExC,oCAAY","file":"_index.js","sourcesContent":["import * as CustomerPost from \"./customer.post\";\r\n\r\nexport {CustomerPost}\r\n"],"sourceRoot":"../../../src"}

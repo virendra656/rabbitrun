@@ -1,0 +1,1 @@
+{"version":3,"sources":["endpoints/languages/_index.ts"],"names":[],"mappings":";;AAAA,+CAA8C;AAGrC,kCAAW;AAFpB,iDAAgD;AAE1B,oCAAY","file":"_index.js","sourcesContent":["import * as LanguageGet from './languages.get'\nimport * as LanguagePost from './languages.post'\n\nexport { LanguageGet, LanguagePost }\n"],"sourceRoot":"../../../src"}
