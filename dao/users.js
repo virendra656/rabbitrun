@@ -106,7 +106,9 @@ function setCustomerProfile(customer, user) {
         accountNumber: customer.accountNumber,
         ifsc: customer.ifsc,
         bank_name: customer.bank_name,
-        phone_number: customer.phone_number
+        phone_number: customer.phone_number,
+        gst: customer.gst,
+        firm_name: customer.firm_name,
     });
 }
 exports.setCustomerProfile = setCustomerProfile;

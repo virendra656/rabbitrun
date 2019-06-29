@@ -16,6 +16,8 @@ module.exports = (sequelize, type) => {
         ifsc: type.STRING,
         bank_name: type.STRING,
         phone_number: type.STRING,
+        gst: type.STRING,
+        firm_name: type.STRING,
         createdAt: {
             type: 'TIMESTAMP',
             defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),

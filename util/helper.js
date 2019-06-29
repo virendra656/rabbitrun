@@ -98,13 +98,18 @@ exports.EmailSend = EmailSend;
 function renderResponse(res, validation_err, err, data) {
     if (validation_err && !validation_err.isEmpty()) {
         let key = Object.keys(validation_err.mapped())[0];
-        return res.status(400).json({ error: validation_err.mapped()[key].msg, success: false, data: {} });
+        return res.status(200).json({ code: 400, message: validation_err.mapped()[key].msg, success: false, data: {} });
     }
     else if (err) {
-        return res.status(err.code || 500).json({ error: err.message, success: false, data: {} });
+        return res.status(200).json({ code: 500, message: err.message, success: false, data: {} });
     }
     else if (data) {
-        return res.status(data.code || 200).json({ error: "", success: true, data: data });
+        let message = data.message || "";
+        try {
+            delete data.message;
+        }
+        catch (e) { }
+        return res.status(200).json({ code: data.code || 200, message: message, success: true, data: data });
     }
 }
 exports.renderResponse = renderResponse;
