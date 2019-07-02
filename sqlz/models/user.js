@@ -33,6 +33,12 @@ module.exports = (sequelize, type) => {
             defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
             allowNull: false
         },
+        deviceType: {
+            type: type.STRING
+        },
+        deviceToken: {
+            type: type.STRING
+        }
     });
 };
 

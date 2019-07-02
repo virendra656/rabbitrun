@@ -83,6 +83,10 @@ function register(user) {
     });
 }
 exports.register = register;
+function updateDevice(user) {
+    return User.update({ deviceType: user.deviceType, deviceToken: user.deviceToken }, { where: { id: user.id } });
+}
+exports.updateDevice = updateDevice;
 function updateOTP(user) {
     return User.update({ forgotPasswordOTP: user.forgotPasswordOTP }, { where: { id: user.id } });
 }
