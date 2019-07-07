@@ -8,6 +8,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const SiteConfig_1 = require("./SiteConfig");
 function to(promise) {
     return promise.then(data => {
         return [null, data];
@@ -131,7 +132,7 @@ function validateSchema(data, schema) {
                         break;
                     }
                     let err = new Error(error.toString());
-                    err[CONSTANTS.STATUS_CODE] = Codes.BAD_REQUEST;
+                    err[SiteConfig_1.CONSTANTS.STATUS_CODE] = SiteConfig_1.Codes.BAD_REQUEST;
                     throw err;
                 }
             }

@@ -19,7 +19,8 @@ exports.Codes = {
     ALREADY_EXIST: 409
 };
 exports.CONSTANTS = {
-    apiBasePath: '/api/v1/'
+    apiBasePath: '/api/v1/',
+    STATUS_CODE: 2000
 };
 
 //# sourceMappingURL=SiteConfig.js.map
