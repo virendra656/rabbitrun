@@ -1,13 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const uuid = require("uuid");
-const _index_1 = require("../sqlz/models/_index");
+const db = {};
 function create(appUser) {
-    return _index_1.default.Language.findOne({
+    return db.Language.findOne({
         where: { name: 'fr' }
     })
         .then(language => {
-        return _index_1.default.AppUser
+        return db.AppUser
             .create({
             id: uuid.v1(),
             email: appUser.email,
@@ -18,18 +18,18 @@ function create(appUser) {
 }
 exports.create = create;
 function findAll() {
-    return _index_1.default.AppUser
+    return db.AppUser
         .findAll({ include: [{ all: true }] });
 }
 exports.findAll = findAll;
 function login(appUser) {
-    return _index_1.default.AppUser
+    return db.AppUser
         .findOne({
         where: {
             email: appUser.email,
             pwd: appUser.pwd
         },
-        include: [_index_1.default.Language]
+        include: [db.Language]
     });
 }
 exports.login = login;

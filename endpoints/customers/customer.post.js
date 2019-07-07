@@ -64,7 +64,7 @@ exports.register = register;
 function login(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            let err, result, user, customerProfile;
+            let err, result, user, customerProfile, device;
             let finalResponse = {
                 code: SiteConfig_1.Codes.OK,
                 data: {},
@@ -86,7 +86,7 @@ function login(req, res) {
                 throw new Error("Your mobile number is not verified yet");
             req.body.id = user.id;
             if (req.body.deviceType && req.body.deviceToken) {
-                [err, user] = yield helper_1.to(_index_1.UserDao.updateDevice(req.body));
+                [err, device] = yield helper_1.to(_index_1.UserDao.updateDevice(req.body));
                 if (err)
                     throw err;
             }
@@ -95,6 +95,8 @@ function login(req, res) {
             let token = jwt.sign({
                 data: user
             }, process.env.EncryptionKEY, { expiresIn: '7d' });
+            console.log(user);
+            console.log(customerProfile);
             finalResponse.data.token = token;
             finalResponse.data.user = user;
             helper_1.renderResponse(res, null, null, finalResponse);
@@ -185,6 +187,7 @@ function verifyAccount(req, res) {
             [err, customerProfile] = yield helper_1.to(_index_1.UserDao.verifyAccount(user));
             if (err)
                 throw err;
+            user.isVerified = 1;
             finalResponse.data.user = user;
             helper_1.renderResponse(res, null, null, finalResponse);
         }
