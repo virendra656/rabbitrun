@@ -82,8 +82,6 @@ function login(req, res) {
                 else
                     throw new Error("Incorrect password or mobile number");
             }
-            if (user.isVerified == 0)
-                throw new Error("Your mobile number is not verified yet");
             req.body.id = user.id;
             if (req.body.deviceType && req.body.deviceToken) {
                 [err, device] = yield helper_1.to(_index_1.UserDao.updateDevice(req.body));
@@ -95,8 +93,6 @@ function login(req, res) {
             let token = jwt.sign({
                 data: user
             }, process.env.EncryptionKEY, { expiresIn: '7d' });
-            console.log(user);
-            console.log(customerProfile);
             finalResponse.data.token = token;
             finalResponse.data.user = user;
             helper_1.renderResponse(res, null, null, finalResponse);
@@ -118,7 +114,7 @@ function forgotPassword(req, res) {
                 message: "otp sent successfully on "
             };
             if (!req.body.email_or_mobile) {
-                throw new Error("Insufficent credentials");
+                throw new Error("Please enter valid email or mobile number");
             }
             req.body.email = req.body.email_or_mobile;
             req.body.mobile = req.body.email_or_mobile;
@@ -131,8 +127,6 @@ function forgotPassword(req, res) {
                 else
                     throw new Error("Incorrect mobile number");
             }
-            if (user.isVerified == 0)
-                throw new Error("Your mobile number is not verified yet");
             user.forgotPasswordOTP = helper_1.generateUniqueId(null, 6);
             [err, customerProfile] = yield helper_1.to(_index_1.UserDao.updateOTP(user));
             if (err)
@@ -174,7 +168,7 @@ function verifyAccount(req, res) {
                 message: "Account verified successfully"
             };
             if (!req.body.verifyOTP) {
-                throw new Error("Insufficent credentials");
+                throw new Error("otp is missing");
             }
             [err, user] = yield helper_1.to(_index_1.UserDao.findUserByOTP(req.body));
             if (err)
