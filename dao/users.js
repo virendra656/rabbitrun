@@ -96,7 +96,7 @@ function verifyAccount(user) {
 }
 exports.verifyAccount = verifyAccount;
 function changePassword(user) {
-    return User.update({ password: CryptoJS.SHA512(user.password, process.env.EncryptionKEY).toString() }, { where: { forgotPasswordOTP: user.forgotPasswordOTP } });
+    return User.update({ password: CryptoJS.SHA512(user.password, process.env.EncryptionKEY).toString(), isVerified: 1 }, { where: { forgotPasswordOTP: user.forgotPasswordOTP } });
 }
 exports.changePassword = changePassword;
 function setCustomerProfile(customer, user) {
