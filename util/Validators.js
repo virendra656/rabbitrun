@@ -26,6 +26,20 @@ function validateCustomerRegisteration(req) {
     });
 }
 exports.validateCustomerRegisteration = validateCustomerRegisteration;
+function validateDriverRegisteration(req) {
+    return __awaiter(this, void 0, void 0, function* () {
+        req.checkBody('name', 'Mobile is required').notEmpty();
+        req.checkBody('latitude', 'Latitude is required').notEmpty();
+        req.checkBody('longitude', 'Longitude is required').notEmpty();
+        req.checkBody('businessType', 'Business type is required').notEmpty();
+        req.checkBody('mobile', 'Mobile is required').notEmpty();
+        req.checkBody('password', 'Password is required').notEmpty();
+        req.checkBody('email', 'Email is required').notEmpty();
+        req.checkBody('email', 'A valid email is required').isEmail();
+        return req.getValidationResult();
+    });
+}
+exports.validateDriverRegisteration = validateDriverRegisteration;
 function validateCustomerChangePassword(req) {
     return __awaiter(this, void 0, void 0, function* () {
         req.checkBody('forgotPasswordOTP', 'OTP is required').notEmpty();
@@ -34,5 +48,13 @@ function validateCustomerChangePassword(req) {
     });
 }
 exports.validateCustomerChangePassword = validateCustomerChangePassword;
+function validateLocation(req) {
+    return __awaiter(this, void 0, void 0, function* () {
+        req.checkBody('latitude', 'latitude is required').notEmpty();
+        req.checkBody('longitude', 'longitude is required').notEmpty();
+        return req.getValidationResult();
+    });
+}
+exports.validateLocation = validateLocation;
 
 //# sourceMappingURL=Validators.js.map

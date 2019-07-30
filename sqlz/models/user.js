@@ -9,6 +9,10 @@ module.exports = (sequelize, type) => {
         email: type.STRING,
         mobile: type.STRING,
         password: type.STRING,
+        role: {
+            type: type.INTEGER,
+            defaultValue: 3
+        },
         isActive: {
             type: type.INTEGER,
             defaultValue: 1

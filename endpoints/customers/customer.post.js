@@ -229,8 +229,6 @@ function changePassword(req, res) {
             if (!user) {
                 throw new Error("Incorrect OTP");
             }
-            if (user.isVerified == 0)
-                throw new Error("Your account is not verified yet");
             [err, customerProfile] = yield helper_1.to(_index_1.UserDao.changePassword(req.body));
             if (err)
                 throw err;

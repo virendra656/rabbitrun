@@ -4,6 +4,7 @@ const winston = require("winston");
 const LanguagesRoutes = require("./languages");
 const AppUserRoutes = require("./appusers");
 const CustomerRoutes = require("./customers");
+const DriverRoutes = require("./drivers");
 function initRoutes(app) {
     winston.log('info', '--> Initialisations des routes');
     app.get('/api', (req, res) => res.status(200).send({
@@ -12,6 +13,7 @@ function initRoutes(app) {
     LanguagesRoutes.routes(app);
     AppUserRoutes.routes(app);
     CustomerRoutes.routes(app);
+    DriverRoutes.routes(app);
     app.all('*', (req, res) => res.boom.notFound());
 }
 exports.initRoutes = initRoutes;
