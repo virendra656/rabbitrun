@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const { User, CustomerProfile, Category, DriverProfile } = require('../sqlz/models/_index');
+const { User, CustomerProfile, Category, DriverProfile, SocketConnections, sequelize } = require('../sqlz/models/_index');
 const CryptoJS = require("crypto-js");
-const sequelize = require('sequelize');
+const sequelizeModule = require('sequelize');
 function findCustomerByEmailOrPhone(user) {
     return User.findOne({
         raw: true,
@@ -108,15 +108,36 @@ function updateDevice(user) {
 }
 exports.updateDevice = updateDevice;
 function nearByDrivers(user) {
-    let lat = user.latitude;
-    let lng = user.latitude;
-    return DriverProfile.findAll({
-        attributes: [[sequelize.literal("6371 * acos(cos(radians(" + lat + ")) * cos(radians(latitude)) * cos(radians(" + lng + ") - radians(longitude)) + sin(radians(" + lat + ")) * sin(radians(latitude)))"), 'distance'], 'name'],
-        order: sequelize.col('distance'),
-        limit: 10
-    });
+    let lati = user.latitude;
+    let longi = user.longitude;
+    return sequelize.query(`
+  SELECT
+    dp.userId,
+    
+    (3959 * ACOS(COS(RADIANS(${lati})) * COS(RADIANS(dp.latitude)) * COS(RADIANS(dp.longitude) - RADIANS(${longi})) + SIN(RADIANS(${lati})) * SIN(RADIANS(dp.latitude)))) AS distance,
+    dp.name,    
+    sc.socketId    
+  FROM driver_profiles  dp
+  JOIN socket_connections sc
+    ON sc.userId = dp.userId
+  WHERE 1 = 1
+  GROUP BY dp.userId
+  HAVING distance <= 550000
+  ORDER BY distance ASC;`, { type: sequelize.QueryTypes.SELECT });
 }
 exports.nearByDrivers = nearByDrivers;
+function saveSocketConnection(user) {
+    return SocketConnections.findOne({ where: { userId: user.userId } })
+        .then(function (obj) {
+        if (obj) {
+            return obj.update(user);
+        }
+        else {
+            return SocketConnections.create(user);
+        }
+    });
+}
+exports.saveSocketConnection = saveSocketConnection;
 function updateDriverLocation(user) {
     return DriverProfile.update({ latitude: user.latitude, longitude: user.longitude }, { where: { id: user.id } });
 }

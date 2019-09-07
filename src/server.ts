@@ -3,12 +3,15 @@ import * as winston from 'winston'
 import * as boom from 'express-boom'
 import * as morgan from 'morgan'
 import * as cors from 'cors'
+import * as _ from 'lodash'
 import * as expressValidator from 'express-validator'
 import { json, urlencoded } from 'body-parser'
 import { Express } from 'express'
 import * as routes from './routes/_index'
 import * as dotenv from 'dotenv';
-import { renderResponse } from './util/helper';
+import { renderResponse, to } from './util/helper';
+import { UserDao } from './dao/_index'
+
 const PORT: number = 3000
 
 /**
@@ -53,10 +56,44 @@ export class Server {
     });
 
     io.on('connection', function (client) {
-      console.log('Client connected...');
+      console.log('Client connected...', client.id);
 
       client.on('join', function (data) {
-        console.log(data);
+        //console.log(io.sockets.sockets);
+        if (data && data.userId) {
+          data.socketId = client.id;
+          UserDao.saveSocketConnection(data);
+        }
+
+      });
+
+
+      client.on('searchDriver', async function (data) {
+
+        if (data && data.latitude && data.longitude) {
+          let [err, res] = await to(UserDao.nearByDrivers(data));
+          if (res && res.length) {
+            let items = [];
+            res.forEach(element => {
+
+              //     console.log("8888888888888888");
+              //   console.log(element.socketId);
+
+              // console.log(Object.keys(io.sockets.sockets));
+              //  console.log(element)
+
+              items.push(element);
+              if (io.sockets.sockets[element.socketId]) {
+                _.extend(element, data);
+                io.sockets.sockets[element.socketId].emit('bookingRequest', element);
+              }
+            });
+            console.log(Object.keys(io.sockets.sockets));
+            //console.log(items);
+
+          }
+        }
+
       });
 
       client.on('messages', function (data) {

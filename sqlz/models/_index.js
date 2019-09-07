@@ -3,6 +3,7 @@ const Sequelize = require('sequelize');
 const UserModel = require('./user');
 const CategoryModel = require('./category');
 const CustomerProfileModel = require('./customer_profile');
+const SocketConnectionsModel = require('./socket_connections');
 const DriverProfileModel = require('./driver_profile');
 require('dotenv').config();
 const dbConfig = {
@@ -21,11 +22,13 @@ const sequelize = new Sequelize(dbConfig['database'], dbConfig['username'], dbCo
 const User = UserModel(sequelize, Sequelize);
 const Category = CategoryModel(sequelize, Sequelize);
 const CustomerProfile = CustomerProfileModel(sequelize, Sequelize);
+const SocketConnections = SocketConnectionsModel(sequelize, Sequelize);
 const DriverProfile = DriverProfileModel(sequelize, Sequelize);
+SocketConnections.belongsTo(User);
 CustomerProfile.belongsTo(User);
 DriverProfile.belongsTo(User);
 module.exports = {
-    User, CustomerProfile, Category, DriverProfile
+    User, CustomerProfile, Category, DriverProfile, SocketConnections, sequelize
 };
 
 //# sourceMappingURL=_index.js.map

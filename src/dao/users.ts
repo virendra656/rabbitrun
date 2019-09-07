@@ -1,10 +1,10 @@
 import * as uuid from 'uuid'
 
-const { User, CustomerProfile, Category, DriverProfile } = require('../sqlz/models/_index');
+const { User, CustomerProfile, Category, DriverProfile, SocketConnections, sequelize } = require('../sqlz/models/_index');
 import * as CryptoJS from 'crypto-js';
 
 
-const sequelize = require('sequelize')
+const sequelizeModule = require('sequelize')
 
 export function findCustomerByEmailOrPhone(user: any): Promise<any> {
   return User.findOne({
@@ -60,13 +60,13 @@ export function getBusinessCategories(): Promise<any> {
   return Category.findAll({
     raw: true,
     limit: 1,
-    where: {isActive:1},
+    where: { isActive: 1 },
     order: [['createdAt', 'DESC']]
   });
 }
 
 export function findUserByOTP(user: any): Promise<any> {
-  let obj = user.verifyOTP ? {verifyOTP : user.verifyOTP} : {forgotPasswordOTP : user.forgotPasswordOTP} 
+  let obj = user.verifyOTP ? { verifyOTP: user.verifyOTP } : { forgotPasswordOTP: user.forgotPasswordOTP }
   return User.findOne({
     raw: true,
     limit: 1,
@@ -107,7 +107,7 @@ export function register(user: any): Promise<any> {
       email: user.email.toLowerCase(),
       verifyOTP: user.verifyOTP,
       isVerified: user.isVerified ? 1 : 0,
-      role: user.role ||  3,
+      role: user.role || 3,
       mobile: user.mobile.replace(/ +?/g, ''),
       password: CryptoJS.SHA512(user.password, process.env.EncryptionKEY).toString()
     })
@@ -121,13 +121,43 @@ export function updateDevice(user: any): Promise<any> {
 }
 
 export function nearByDrivers(user: any): Promise<any> {
-  let lat = user.latitude;
-  let lng = user.latitude;
-  return DriverProfile.findAll({
-    attributes: [[sequelize.literal("6371 * acos(cos(radians("+lat+")) * cos(radians(latitude)) * cos(radians("+lng+") - radians(longitude)) + sin(radians("+lat+")) * sin(radians(latitude)))"),'distance'], 'name'],
-    order: sequelize.col('distance'),
-    limit: 10
-  });
+  let lati = user.latitude;
+  let longi = user.longitude;
+  return sequelize.query(`
+  SELECT
+    dp.userId,
+    
+    (3959 * ACOS(COS(RADIANS(${lati})) * COS(RADIANS(dp.latitude)) * COS(RADIANS(dp.longitude) - RADIANS(${longi})) + SIN(RADIANS(${lati})) * SIN(RADIANS(dp.latitude)))) AS distance,
+    dp.name,    
+    sc.socketId    
+  FROM driver_profiles  dp
+  JOIN socket_connections sc
+    ON sc.userId = dp.userId
+  WHERE 1 = 1
+  GROUP BY dp.userId
+  HAVING distance <= 550000
+  ORDER BY distance ASC;`, {type: sequelize.QueryTypes.SELECT})
+
+  /* return DriverProfile.findAll({
+    attributes: [[sequelizeModule.literal("6371 * acos(cos(radians(" + lat + ")) * cos(radians(latitude)) * cos(radians(" + lng + ") - radians(longitude)) + sin(radians(" + lat + ")) * sin(radians(latitude)))"), 'distance'], 'name', 'userId'],
+    order: sequelizeModule.col('distance'),
+    raw: true,
+    limit: 10,
+    include: [{ model: SocketConnections, attributes: [['socketId', 'userId']] }]
+
+  }); */
+}
+
+export function saveSocketConnection(user: any): Promise<any> {
+  return SocketConnections.findOne({ where: { userId: user.userId } })
+    .then(function (obj) {
+      if (obj) { // update
+        return obj.update(user);
+      }
+      else { // insert
+        return SocketConnections.create(user);
+      }
+    });
 }
 
 export function updateDriverLocation(user: any): Promise<any> {
@@ -162,7 +192,7 @@ export function changePassword(user: any): Promise<any> {
 }
 
 export function setDriverProfile(driver: any, user: any): Promise<any> {
-  
+
   return DriverProfile.create({
     name: driver.name,
     userId: user.id,
@@ -174,7 +204,7 @@ export function setDriverProfile(driver: any, user: any): Promise<any> {
 }
 
 export function setCustomerProfile(customer: any, user: any): Promise<any> {
-  
+
   return CustomerProfile.create({
     name: customer.name,
     userId: user.id,
