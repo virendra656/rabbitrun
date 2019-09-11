@@ -9,6 +9,8 @@ module.exports = (sequelize, type) => {
         },
         name: type.STRING,
         address: type.STRING,
+        bookingStatus: type.STRING,
+        truckType: type.STRING,
         latitude: { type: type.DECIMAL(10, 8) },
         longitude: { type: type.DECIMAL(10, 8) },
         businessType: type.INTEGER,

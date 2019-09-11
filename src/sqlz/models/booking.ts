@@ -1,33 +1,31 @@
 
-module.exports = (sequelize, type) => {
+
+module.exports = (sequelize, type, UserModel) => {
   const Sequelize = require('sequelize');
-  const UserModel = require('./user')
-  return sequelize.define('customer_profile', {
+  
+  return sequelize.define('booking', {
     id: {
       type: type.INTEGER,
       primaryKey: true,
       autoIncrement: true
     },
- /*    userId: {
+    userId: {
       type: Sequelize.INTEGER,
       references: {
         model: UserModel,
         key: 'id',
         deferrable: Sequelize.Deferrable.INITIALLY_IMMEDIATE
       }
-    }, */
-    name: type.STRING,
-    address: type.STRING,
-    latitude: { type: type.DECIMAL(10, 2) },
-    longitude: { type: type.DECIMAL(10, 2) },
-    businessType: type.INTEGER,
-    accountNumber: type.STRING,
-    ifsc: type.STRING,
-    bank_name: type.STRING,
-    phone_number: type.STRING,
-    gst: type.STRING,
-    firm_name: type.STRING,
-
+    },
+    driverId: {
+      type: Sequelize.INTEGER,
+      references: {
+        model: UserModel,
+        key: 'id',
+        deferrable: Sequelize.Deferrable.INITIALLY_IMMEDIATE
+      }
+    },
+    status: type.STRING,
     createdAt: {
       type: 'TIMESTAMP',
       defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),

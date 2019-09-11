@@ -69,23 +69,21 @@ export class Server {
 
 
       client.on('searchDriver', async function (data) {
-
-        if (data && data.latitude && data.longitude) {
-          let [err, res] = await to(UserDao.nearByDrivers(data));
+        console.log("searchDriver");
+        console.log(data);
+        let source = data && data.source ? data.source : null;
+        if (source && source.latitude && source.longitude) {
+          let [err, res] = await to(UserDao.nearByDrivers(source));
+          console.log("drivers");
+          console.log(res);
+          
           if (res && res.length) {
             let items = [];
             res.forEach(element => {
-
-              //     console.log("8888888888888888");
-              //   console.log(element.socketId);
-
-              // console.log(Object.keys(io.sockets.sockets));
-              //  console.log(element)
-
               items.push(element);
               if (io.sockets.sockets[element.socketId]) {
-                _.extend(element, data);
-                io.sockets.sockets[element.socketId].emit('bookingRequest', element);
+                //_.extend(element, data);
+                io.sockets.sockets[element.socketId].emit('bookingRequest', data);
               }
             });
             console.log(Object.keys(io.sockets.sockets));
@@ -95,6 +93,39 @@ export class Server {
         }
 
       });
+
+      client.on('updateBookingStatus', async function (data) {
+        console.log("updateBookingStatus", data);
+        let err: any;
+        let dbbooking: any;
+        let customer: any;
+        let booking = data && data.booking && data.booking.status ? data.booking : null;
+        let driver = data && data.driver && data.driver.userId ? data.driver : null;
+        let user = data && data.user && data.user.userId ? data.user : null;
+        if (booking && driver && user) {
+          [err, dbbooking] = await to(UserDao.updateBookingStatus(booking, driver, user));
+          console.log("dbbooking");
+          console.log(dbbooking);
+          [err, customer] = await to(UserDao.findUserSocketConnection(user));
+
+          console.log("customer");
+          console.log(customer);
+
+          if (customer && customer.socketId) {
+            if (io.sockets.sockets[customer.socketId]) {
+              //_.extend(element, data);
+              data.booking = {id : dbbooking.dataValues.id, userId: dbbooking.dataValues.userId, driverId:  dbbooking.dataValues.driverId, status: dbbooking.dataValues.status};
+              io.sockets.sockets[customer.socketId].emit('bookingStatusChanged', data);
+              client.emit('bookingStatusChanged', data);
+            }
+            console.log(Object.keys(io.sockets.sockets));
+            //console.log(items);
+
+          }
+        }
+
+      });
+
 
       client.on('messages', function (data) {
         client.emit('broad', data);

@@ -1,6 +1,6 @@
 import * as uuid from 'uuid'
 
-const { User, CustomerProfile, Category, DriverProfile, SocketConnections, sequelize } = require('../sqlz/models/_index');
+const { User, CustomerProfile, Category, DriverProfile, SocketConnections, sequelize, Booking } = require('../sqlz/models/_index');
 import * as CryptoJS from 'crypto-js';
 
 
@@ -120,6 +120,26 @@ export function updateDevice(user: any): Promise<any> {
   );
 }
 
+export async function updateBookingStatus(booking: any, driver: any, user: any): Promise<any> {
+
+  if (booking.status == 'INITIATED' || booking.status == 'COMPLETED' || booking.status == 'REJECTED') {
+    DriverProfile.update({
+      bookingStatus: booking.status == 'INITIATED' ? 'BOOKED' : ''
+    }, { where: { userId: driver.userId } })
+  }
+
+
+  return Booking.findOne({ where: { userId: user.userId, driverId: driver.userId, id : booking.id } })
+    .then(function (obj) {
+      if (obj) { // update
+        return obj.update({ status: booking.status });
+      }
+      else { // insert        
+        return Booking.create({ userId: user.userId, driverId: driver.userId, status: booking.status });
+      }
+    });
+}
+
 export function nearByDrivers(user: any): Promise<any> {
   let lati = user.latitude;
   let longi = user.longitude;
@@ -136,7 +156,7 @@ export function nearByDrivers(user: any): Promise<any> {
   WHERE 1 = 1
   GROUP BY dp.userId
   HAVING distance <= 550000
-  ORDER BY distance ASC;`, {type: sequelize.QueryTypes.SELECT})
+  ORDER BY distance ASC;`, { type: sequelize.QueryTypes.SELECT })
 
   /* return DriverProfile.findAll({
     attributes: [[sequelizeModule.literal("6371 * acos(cos(radians(" + lat + ")) * cos(radians(latitude)) * cos(radians(" + lng + ") - radians(longitude)) + sin(radians(" + lat + ")) * sin(radians(latitude)))"), 'distance'], 'name', 'userId'],
@@ -147,6 +167,11 @@ export function nearByDrivers(user: any): Promise<any> {
 
   }); */
 }
+
+export function findUserSocketConnection(user: any): Promise<any> {
+  return SocketConnections.findOne({ where: { userId: user.userId } });
+}
+
 
 export function saveSocketConnection(user: any): Promise<any> {
   return SocketConnections.findOne({ where: { userId: user.userId } })

@@ -13,7 +13,6 @@ const winston = require("winston");
 const boom = require("express-boom");
 const morgan = require("morgan");
 const cors = require("cors");
-const _ = require("lodash");
 const expressValidator = require("express-validator");
 const body_parser_1 = require("body-parser");
 const routes = require("./routes/_index");
@@ -58,17 +57,48 @@ class Server {
             });
             client.on('searchDriver', function (data) {
                 return __awaiter(this, void 0, void 0, function* () {
-                    if (data && data.latitude && data.longitude) {
-                        let [err, res] = yield helper_1.to(_index_1.UserDao.nearByDrivers(data));
+                    console.log("searchDriver");
+                    console.log(data);
+                    let source = data && data.source ? data.source : null;
+                    if (source && source.latitude && source.longitude) {
+                        let [err, res] = yield helper_1.to(_index_1.UserDao.nearByDrivers(source));
+                        console.log("drivers");
+                        console.log(res);
                         if (res && res.length) {
                             let items = [];
                             res.forEach(element => {
                                 items.push(element);
                                 if (io.sockets.sockets[element.socketId]) {
-                                    _.extend(element, data);
-                                    io.sockets.sockets[element.socketId].emit('bookingRequest', element);
+                                    io.sockets.sockets[element.socketId].emit('bookingRequest', data);
                                 }
                             });
+                            console.log(Object.keys(io.sockets.sockets));
+                        }
+                    }
+                });
+            });
+            client.on('updateBookingStatus', function (data) {
+                return __awaiter(this, void 0, void 0, function* () {
+                    console.log("updateBookingStatus", data);
+                    let err;
+                    let dbbooking;
+                    let customer;
+                    let booking = data && data.booking && data.booking.status ? data.booking : null;
+                    let driver = data && data.driver && data.driver.userId ? data.driver : null;
+                    let user = data && data.user && data.user.userId ? data.user : null;
+                    if (booking && driver && user) {
+                        [err, dbbooking] = yield helper_1.to(_index_1.UserDao.updateBookingStatus(booking, driver, user));
+                        console.log("dbbooking");
+                        console.log(dbbooking);
+                        [err, customer] = yield helper_1.to(_index_1.UserDao.findUserSocketConnection(user));
+                        console.log("customer");
+                        console.log(customer);
+                        if (customer && customer.socketId) {
+                            if (io.sockets.sockets[customer.socketId]) {
+                                data.booking = { id: dbbooking.dataValues.id, userId: dbbooking.dataValues.userId, driverId: dbbooking.dataValues.driverId, status: dbbooking.dataValues.status };
+                                io.sockets.sockets[customer.socketId].emit('bookingStatusChanged', data);
+                                client.emit('bookingStatusChanged', data);
+                            }
                             console.log(Object.keys(io.sockets.sockets));
                         }
                     }

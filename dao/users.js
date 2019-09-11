@@ -1,6 +1,14 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-const { User, CustomerProfile, Category, DriverProfile, SocketConnections, sequelize } = require('../sqlz/models/_index');
+const { User, CustomerProfile, Category, DriverProfile, SocketConnections, sequelize, Booking } = require('../sqlz/models/_index');
 const CryptoJS = require("crypto-js");
 const sequelizeModule = require('sequelize');
 function findCustomerByEmailOrPhone(user) {
@@ -107,6 +115,25 @@ function updateDevice(user) {
     return User.update({ deviceType: user.deviceType, deviceToken: user.deviceToken }, { where: { id: user.id } });
 }
 exports.updateDevice = updateDevice;
+function updateBookingStatus(booking, driver, user) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (booking.status == 'INITIATED' || booking.status == 'COMPLETED' || booking.status == 'REJECTED') {
+            DriverProfile.update({
+                bookingStatus: booking.status == 'INITIATED' ? 'BOOKED' : ''
+            }, { where: { userId: driver.userId } });
+        }
+        return Booking.findOne({ where: { userId: user.userId, driverId: driver.userId, id: booking.id } })
+            .then(function (obj) {
+            if (obj) {
+                return obj.update({ status: booking.status });
+            }
+            else {
+                return Booking.create({ userId: user.userId, driverId: driver.userId, status: booking.status });
+            }
+        });
+    });
+}
+exports.updateBookingStatus = updateBookingStatus;
 function nearByDrivers(user) {
     let lati = user.latitude;
     let longi = user.longitude;
@@ -126,6 +153,10 @@ function nearByDrivers(user) {
   ORDER BY distance ASC;`, { type: sequelize.QueryTypes.SELECT });
 }
 exports.nearByDrivers = nearByDrivers;
+function findUserSocketConnection(user) {
+    return SocketConnections.findOne({ where: { userId: user.userId } });
+}
+exports.findUserSocketConnection = findUserSocketConnection;
 function saveSocketConnection(user) {
     return SocketConnections.findOne({ where: { userId: user.userId } })
         .then(function (obj) {
