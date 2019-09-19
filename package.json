@@ -7,7 +7,7 @@
     "name": "Maxime GRIS",
     "email": "maxime.gris@gmail.com"
   },
-  "main": "build/src/server.js",
+  "main": "server.js",
   "keywords": [
     "Node",
     "Express",
@@ -17,7 +17,7 @@
   "scripts": {
     "build": "gulp build",
     "doc": "gulp generate:doc",
-    "start": "gulp watch",
+    "start": "node server.js",
     "start:prod": "cross-env NODE_ENV=production gulp watch",
     "run:test": "cross-env NODE_ENV=test gulp test",
     "tslint": "gulp tslint",
