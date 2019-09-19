@@ -15,10 +15,7 @@
     "Sequelize"
   ],
   "scripts": {
-    "start": "node server.js",
-  },
-  "lint-staged": {
-    
+    "start": "node server.js"
   },
   "dependencies": {
     "body-parser": "~1.17.0",
