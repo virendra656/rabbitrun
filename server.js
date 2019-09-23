@@ -49,7 +49,10 @@ class Server {
         });
         io.on('connection', function (client) {
             console.log('Client connected...', client.id);
+            
             client.on('join', function (data) {
+                console.log('Client joining...', data);
+                console.log('Client id...', client.id);
                 if (data && data.userId) {
                     data.socketId = client.id;
                     _index_1.UserDao.saveSocketConnection(data);
