@@ -51,6 +51,11 @@ class Server {
             console.log('Client connected...', client.id);
             
             client.on('join', function (data) {
+                try {
+                    data = JSON.parse(data);
+                } catch (e) {
+                    console.log(e)
+                }
                 console.log('Client joining...', data);
                 console.log('Client id...', client.id);
                 console.log('data id...', data.userId);
@@ -62,6 +67,11 @@ class Server {
             client.on('searchDriver', function (data) {
                 return __awaiter(this, void 0, void 0, function* () {
                     console.log("searchDriver");
+                    try {
+                    data = JSON.parse(data);
+                } catch (e) {
+                    console.log(e)
+                }
                     console.log(data);
                     let source = data && data.source ? data.source : null;
                     if (source && source.latitude && source.longitude) {
@@ -83,6 +93,11 @@ class Server {
             });
             client.on('updateBookingStatus', function (data) {
                 return __awaiter(this, void 0, void 0, function* () {
+                    try {
+                    data = JSON.parse(data);
+                } catch (e) {
+                    console.log(e)
+                }
                     console.log("updateBookingStatus", data);
                     let err;
                     let dbbooking;
