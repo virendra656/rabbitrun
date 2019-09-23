@@ -53,6 +53,7 @@ class Server {
             client.on('join', function (data) {
                 console.log('Client joining...', data);
                 console.log('Client id...', client.id);
+                console.log('data id...', data.userId);
                 if (data && data.userId) {
                     data.socketId = client.id;
                     _index_1.UserDao.saveSocketConnection(data);
