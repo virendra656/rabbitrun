@@ -64,13 +64,18 @@ class Server {
                     _index_1.UserDao.saveSocketConnection(data);
                 }
             });
-            client.on('searchDriver', function (data) {
+            client.on('searchDriver', function (reading) {
                 return __awaiter(this, void 0, void 0, function* () {
-                    console.log("searchDriver");
+                    
+                      let str = reading.toString('utf8');
+  console.log( "String = %s", str );
+  let data = JSON.parse( str.substring(0, str.length-1) );
+                    
+                    console.log("searchDriver", data);
                     try {
-                    data = JSON.parse(data);
+                   // data = JSON.parse(data);
                 } catch (e) {
-                    console.log(e)
+                 //   console.log(e)
                 }
                     console.log(data);
                     let source = data && data.source ? data.source : null;
