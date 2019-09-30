@@ -69,7 +69,7 @@ class Server {
                     
                       let str = reading.toString('utf8');
   console.log( "String = %s", str );
-  let data = JSON.parse( str.substring(0, str.length-1) );
+  let data = JSON.parse( str );
                     
                     console.log("searchDriver", data);
                     try {
