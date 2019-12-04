@@ -22,6 +22,10 @@ module.exports = (sequelize, type, UserModel) => {
                 deferrable: Sequelize.Deferrable.INITIALLY_IMMEDIATE
             }
         },
+        latitude: { type: type.DECIMAL(10, 8) },
+        longitude: { type: type.DECIMAL(10, 8) },
+        source: type.STRING,
+        destination: type.STRING,
         status: type.STRING,
         createdAt: {
             type: 'TIMESTAMP',

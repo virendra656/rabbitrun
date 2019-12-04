@@ -50,14 +50,31 @@ class Server {
         io.on('connection', function (client) {
             console.log('Client connected...', client.id);
             client.on('join', function (data) {
+                try {
+                    data = JSON.parse(data);
+                }
+                catch (e) {
+                    console.log(e);
+                }
+                console.log('Client joining...', data);
+                console.log('Client id...', client.id);
+                console.log('data id...', data.userId);
                 if (data && data.userId) {
                     data.socketId = client.id;
                     _index_1.UserDao.saveSocketConnection(data);
                 }
             });
-            client.on('searchDriver', function (data) {
+            client.on('searchDriver', function (reading) {
                 return __awaiter(this, void 0, void 0, function* () {
                     console.log("searchDriver");
+                    let str = reading.toString('utf8');
+                    console.log("String = %s", str);
+                    let data = JSON.parse(str);
+                    console.log("searchDriver", data);
+                    try {
+                    }
+                    catch (e) {
+                    }
                     console.log(data);
                     let source = data && data.source ? data.source : null;
                     if (source && source.latitude && source.longitude) {
@@ -79,6 +96,12 @@ class Server {
             });
             client.on('updateBookingStatus', function (data) {
                 return __awaiter(this, void 0, void 0, function* () {
+                    try {
+                        data = JSON.parse(data);
+                    }
+                    catch (e) {
+                        console.log(e);
+                    }
                     console.log("updateBookingStatus", data);
                     let err;
                     let dbbooking;

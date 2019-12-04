@@ -76,7 +76,7 @@ function updateDriverLocation(req, res) {
             if (result && !result.isEmpty()) {
                 helper_1.renderResponse(res, result, null, null);
             }
-            req.body.id = req.body.user.id;
+            req.body.id = req.body.$user.id;
             [err, device] = yield helper_1.to(_index_1.UserDao.updateDriverLocation(req.body));
             if (err)
                 throw err;

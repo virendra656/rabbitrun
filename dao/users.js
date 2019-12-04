@@ -56,6 +56,32 @@ function login(user) {
     });
 }
 exports.login = login;
+function getBookings(params) {
+    params.page = params.page || 1;
+    params.limit = params.limit || 20;
+    return Booking.find({
+        raw: true,
+        offset: ((params.page - 1) * params.limit),
+        limit: params.limit,
+        where: {
+            status: 'COMPLETED',
+            $or: [
+                {
+                    userId: {
+                        $eq: params.user_id
+                    }
+                },
+                {
+                    driverId: {
+                        $eq: params.user_id
+                    }
+                }
+            ]
+        },
+        order: [['createdAt', 'DESC']]
+    });
+}
+exports.getBookings = getBookings;
 function getBusinessCategories() {
     return Category.findAll({
         raw: true,
@@ -125,15 +151,30 @@ function updateBookingStatus(booking, driver, user) {
         return Booking.findOne({ where: { userId: user.userId, driverId: driver.userId, id: booking.id } })
             .then(function (obj) {
             if (obj) {
-                return obj.update({ status: booking.status });
+                return obj.update({ status: booking.status, latitude: booking.latitude, longitude: booking.longitude, source: booking.source, destination: booking.destination });
             }
             else {
-                return Booking.create({ userId: user.userId, driverId: driver.userId, status: booking.status });
+                return Booking.create({ userId: user.userId, driverId: driver.userId, status: booking.status, latitude: booking.latitude, longitude: booking.longitude, source: booking.source, destination: booking.destination });
             }
         });
     });
 }
 exports.updateBookingStatus = updateBookingStatus;
+function getProfile(user) {
+    if (user.role == 3) {
+        return sequelize.query(`
+  SELECT cp.* ,u.id, u.email, u.mobile,u.role, u.isVerified, u.deviceType,u.deviceToken FROM users u 
+JOIN customer_profiles cp on u.id = cp.userId 
+where u.id = ${user.id};`, { type: sequelize.QueryTypes.SELECT });
+    }
+    else {
+        return sequelize.query(`
+    SELECT dp.* ,u.id, u.email, u.mobile,u.role, u.isVerified, u.deviceType,u.deviceToken FROM users u 
+  JOIN driver_profiles dp on u.id = dp.userId 
+  where u.id = ${user.id};`, { type: sequelize.QueryTypes.SELECT });
+    }
+}
+exports.getProfile = getProfile;
 function nearByDrivers(user) {
     let lati = user.latitude;
     let longi = user.longitude;
@@ -200,16 +241,16 @@ function setCustomerProfile(customer, user) {
     return CustomerProfile.create({
         name: customer.name,
         userId: user.id,
-        address: customer.address,
-        latitude: customer.latitude,
-        longitude: customer.longitude,
+        address: customer.address || '',
+        latitude: customer.latitude || 0.00,
+        longitude: customer.longitude || 0.00,
         businessType: customer.businessType,
-        accountNumber: customer.accountNumber,
-        ifsc: customer.ifsc,
-        bank_name: customer.bank_name,
-        phone_number: customer.phone_number,
-        gst: customer.gst,
-        firm_name: customer.firm_name,
+        accountNumber: customer.accountNumber || "",
+        ifsc: customer.ifsc || "",
+        bank_name: customer.bank_name || "",
+        phone_number: customer.phone_number || "",
+        gst: customer.gst || "",
+        firm_name: customer.firm_name || ""
     });
 }
 exports.setCustomerProfile = setCustomerProfile;

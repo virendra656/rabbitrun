@@ -11,13 +11,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 function validateCustomerRegisteration(req) {
     return __awaiter(this, void 0, void 0, function* () {
         req.checkBody('name', 'Mobile is required').notEmpty();
-        req.checkBody('address', 'Address is required').notEmpty();
-        req.checkBody('latitude', 'Latitude is required').notEmpty();
-        req.checkBody('longitude', 'Longitude is required').notEmpty();
         req.checkBody('businessType', 'Business type is required').notEmpty();
-        req.checkBody('accountNumber', 'Account number is required').notEmpty();
-        req.checkBody('ifsc', 'IFSC code is required').notEmpty();
-        req.checkBody('bank_name', 'Bank name is required').notEmpty();
         req.checkBody('mobile', 'Mobile is required').notEmpty();
         req.checkBody('password', 'Password is required').notEmpty();
         req.checkBody('email', 'Email is required').notEmpty();

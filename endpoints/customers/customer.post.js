@@ -191,6 +191,51 @@ function verifyAccount(req, res) {
     });
 }
 exports.verifyAccount = verifyAccount;
+function getProfile(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            let err, result, user, customerProfile;
+            let finalResponse = {
+                code: SiteConfig_1.Codes.OK,
+                data: {},
+                message: "User found"
+            };
+            console.log(req.body.$user);
+            [err, user] = yield helper_1.to(_index_1.UserDao.getProfile(req.body.$user));
+            if (err)
+                throw err;
+            finalResponse.data.user = user ? user[0] : "";
+            helper_1.renderResponse(res, null, null, finalResponse);
+        }
+        catch (e) {
+            helper_1.renderResponse(res, null, e, null);
+        }
+    });
+}
+exports.getProfile = getProfile;
+function getBookings(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            let err, result, bookings, customerProfile;
+            let finalResponse = {
+                code: SiteConfig_1.Codes.OK,
+                data: {},
+                message: "Booking found"
+            };
+            console.log(req.body.$user);
+            req.body.user_id = req.body.$user.id;
+            [err, bookings] = yield helper_1.to(_index_1.UserDao.getBookings(req.body));
+            if (err)
+                throw err;
+            finalResponse.data.bookings = bookings || [];
+            helper_1.renderResponse(res, null, null, finalResponse);
+        }
+        catch (e) {
+            helper_1.renderResponse(res, null, e, null);
+        }
+    });
+}
+exports.getBookings = getBookings;
 function getBusinessCategories(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {

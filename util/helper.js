@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const SiteConfig_1 = require("./SiteConfig");
+const jwt = require("jsonwebtoken");
 function to(promise) {
     return promise.then(data => {
         return [null, data];
@@ -16,6 +17,29 @@ function to(promise) {
         .catch(err => [err]);
 }
 exports.to = to;
+function AuthGuard(req, res, next) {
+    const authorizationHeaader = req.headers.authorization;
+    let result;
+    if (authorizationHeaader) {
+        const token = req.headers.authorization;
+        try {
+            result = jwt.verify(token, process.env.EncryptionKEY);
+            req.body.$user = result.data;
+            next();
+        }
+        catch (err) {
+            throw new Error(err);
+        }
+    }
+    else {
+        result = {
+            error: `Authentication error. Token required.`,
+            status: 401
+        };
+        res.status(401).send(result);
+    }
+}
+exports.AuthGuard = AuthGuard;
 function replaceEmailTemplateData(template, data) {
     const pattern = /\{(.*?)\}/g;
     return template.replace(pattern, (match, token) => data[token]);
