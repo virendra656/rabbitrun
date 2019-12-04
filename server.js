@@ -44,7 +44,7 @@ class Server {
             console.error("err.stack");
             helper_1.renderResponse(res, null, err, null);
         });
-        server.listen(PORT, () => {
+        server.listen(process.env.PORT || PORT, () => {
             winston.log('info', '--> Server successfully started at port %d', PORT);
         });
         io.on('connection', function (client) {
